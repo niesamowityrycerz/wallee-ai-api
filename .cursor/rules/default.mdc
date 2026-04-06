@@ -1,0 +1,23 @@
+---
+name: default
+description: Global backend context for this Rails API
+alwaysApply: true
+---
+
+# Rails API Conventions
+
+**Stack:** Ruby 3.3.7, Rails 8.1.2, Postgres 16. This is a JSON API.
+
+## Architecture
+
+- **SOLID:** Follow Single Responsibility, Open/Closed, Liskov Substitution, Interface Segregation, Dependency Inversion.
+- **Thin controllers:** Controllers only handle HTTP (params, status, rendering). Move business logic into **service objects** (e.g. `app/services/`).
+- **Complex SQL:** Put non-trivial queries in dedicated **query objects** inside a `query` folder (e.g. `app/queries/` or namespaced under a domain).
+- **DRY and SRP:** No duplicated logic; each method/class has one clear responsibility.
+
+## Size limits
+
+- **Methods:** Max 15 lines. Extract to private methods or new classes when longer.
+- **Classes:** Max 150 lines. Split into smaller classes or extract collaborators.
+
+Keep controllers, services, and queries focused and easy to extend.
