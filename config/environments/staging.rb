@@ -53,7 +53,6 @@ Rails.application.configure do
     Logger.new($stdout),
     Logger.new(Rails.root.join("log/solid_queue.log"))
   )
-  config.solid_queue.connects_to = { database: { writing: :queue } }
   config.solid_queue.use_skip_locked = true
 
   # Ignore bad email addresses and do not raise email delivery errors.

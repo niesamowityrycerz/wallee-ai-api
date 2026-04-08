@@ -41,8 +41,6 @@ development:
 
   queue:
     <<: *primary_development
-    database: wallee_ai_api_development_queue
-    migrations_paths: db/queue_migrate
 
   # The TCP port the server listens on. Defaults to 5432.
   # If your server runs on a different port number, change accordingly.
@@ -105,8 +103,6 @@ production:
     migrations_paths: db/cache_migrate
   queue:
     <<: *primary_production
-    database: wallee_ai_api_production_queue
-    migrations_paths: db/queue_migrate
   cable:
     <<: *primary_production
     database: wallee_ai_api_production_cable
@@ -124,7 +120,6 @@ staging:
   queue:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
-    migrations_paths: db/queue_migrate
   cable:
     <<: *default
     url: <%= ENV["DATABASE_URL"] %>
