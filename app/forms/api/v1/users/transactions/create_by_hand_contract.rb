@@ -5,13 +5,13 @@ module Api
     module Users
       module Transactions
         class CreateByHandContract < Dry::Validation::Contract
-          CURRENCIES = %w[pln usd eur gbp].freeze
+          CURRENCIES = %w[PLN USD EUR GBP].freeze
 
           params do
             required(:title).filled(:string)
             optional(:store_name).maybe(:string)
             required(:total_price).filled(:float)
-            required(:currency).filled(:string)
+            required(:currency).filled(:string, included_in?: CURRENCIES)
             required(:transaction_date).filled(:date)
             required(:positions).array(:hash) do
               required(:name).filled(:string)
@@ -20,10 +20,6 @@ module Api
               required(:category).filled(:string)
               required(:total_discount).filled(:float)
             end
-          end
-
-          rule(:currency) do
-            key.failure("must be one of: #{CURRENCIES.join(", ")}") unless CURRENCIES.include?(value)
           end
 
           rule(:positions).each do

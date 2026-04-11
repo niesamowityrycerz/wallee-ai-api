@@ -24,7 +24,7 @@ module Receipts
         {
           name: build_name,
           amount: analysis["total_amount"],
-          currency: analysis["currency"],
+          currency: analysis["currency"].upcase,
           transaction_date: analysis["transaction_date"],
           store_name: analysis["store_name"],
           store_address: analysis["store_address"],

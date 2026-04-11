@@ -7,8 +7,13 @@ module Api
         before_action :authorize_user!
 
         def index
-          result = Api::V1::Users::Transactions::IndexService.new(user: current_user).call
+          result = Api::V1::Users::Transactions::IndexService.new(
+            user: current_user,
+            params: index_params
+          ).call
           render json: serialize_index(result), status: :ok
+        rescue BaseService::ValidationError => e
+          render json: { errors: e.errors }, status: :unprocessable_entity
         end
 
         def show
@@ -25,9 +30,9 @@ module Api
         #     params: default_transaction_params,
         #     image: params.require(:receipt)
         #   ).call
- 
+
         #   return render json: { errors: result[:errors] }, status: :unprocessable_entity unless result[:success]
- 
+
         #   render json: create_response(result[:transaction]), status: :created
         # end
 
@@ -56,11 +61,12 @@ module Api
         def summary
           result = Api::V1::Users::Transactions::SummaryService.new(
             user: current_user,
-            from_date: params[:from_date],
-            to_date: params[:to_date]
+            params: summary_params
           ).call
 
           render json: result, status: :ok
+        rescue BaseService::ValidationError => e
+          render json: { errors: e.errors }, status: :unprocessable_entity
         end
 
         def pending
@@ -124,6 +130,14 @@ module Api
           ).to_h.deep_symbolize_keys
         end
 
+        def index_params
+          params.permit(:currency, :start_date, :end_date).to_h.deep_symbolize_keys
+        end
+
+        def summary_params
+          params.permit(:currency, :from_date, :to_date).to_h.deep_symbolize_keys
+        end
+
         def authorize_user!
           return if params[:user_id].to_s == current_user.id.to_s
 
@@ -148,7 +162,6 @@ module Api
             end
           }
         end
-
       end
     end
   end

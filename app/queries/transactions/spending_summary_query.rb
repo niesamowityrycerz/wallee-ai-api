@@ -2,10 +2,11 @@
 
 module Transactions
   class SpendingSummaryQuery
-    def initialize(user:, from_date:, to_date:)
+    def initialize(user:, from_date:, to_date:, currency:)
       @user = user
       @from_date = from_date
       @to_date = to_date
+      @currency = currency
     end
 
     def call
@@ -18,11 +19,11 @@ module Transactions
 
     private
 
-    attr_reader :user, :from_date, :to_date
+    attr_reader :user, :from_date, :to_date, :currency
 
     def base_scope
       Transaction
-        .where(user: user, status: :ready, transaction_date: from_date..to_date)
+        .where(user: user, status: :ready, currency: currency, transaction_date: from_date..to_date)
         .where.not(amount: nil)
     end
   end
