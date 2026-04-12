@@ -23,9 +23,18 @@ When multiple images are provided, they represent different parts of the SAME re
 - **total_amount**: Extract the final total amount paid. This should be the bottom-line total after all discounts.
 - **total_discount**: Extract the total discount amount applied to the entire receipt. Return 0 if no discounts are present.
 
+### VAT (when shown on the receipt)
+Many receipts (e.g. Polish fiscal **PARAGON FISKALNY**) summarize VAT separately from line items:
+- **total_vat**: The total of all VAT (e.g. **SUMA PTU**). Use the summary total, not a guess from line items. Use **null** here when the receipt has no VAT total.
+- **vat_components**: One entry per VAT **group** that appears in the summary table (letters **A–E**), not per product line. Use an **empty array** when there is no breakdown. For each group include:
+  - **vat_group**: The letter **A**, **B**, **C**, **D**, or **E** as printed.
+  - **rate_percent**: The percentage for that group exactly as printed (e.g. 23, 8, 5, 0).
+  - **vat_amount**: The VAT amount for that group (e.g. **PTU** / VAT for that stawka).
+Prefer the **printed summary block** (Sp.op., PTU per group, SUMA PTU) over inferring amounts only from line suffix letters. If the receipt has no VAT summary, set **total_vat** to **null** and **vat_components** to **[]**.
+
 ### Positions (Line Items)
 For each product/item on the receipt, extract:
-- **name**: The product name, translated to English if in another language. Be descriptive but concise.
+- **name**: The product name exactly as printed on the receipt. Do not translate; preserve the original receipt language.
 - **quantity**: The quantity purchased. Use the exact quantity from the receipt (can be fractional, e.g., 0.5 for half a kilogram).
 - **unit_price**: The price per single unit of the product.
 - **category**: Categorize the product using ONLY one of the following categories:
@@ -33,13 +42,13 @@ For each product/item on the receipt, extract:
 - **total_discount**: Any discount applied specifically to this item. Return 0 if no discount applies.
 
 ## Language Rules
-- ALL extracted text data must be returned in English, regardless of the original receipt language.
-- Translate product names, store names, and addresses to English.
+- **Positions**: Product/line item **names** must stay in the language printed on the receipt. Never translate position names.
+- **Store**: **store_name** and **store_address** should be translated to English when the receipt is in another language (as in the Store Information rules above).
 
 ## Edge Cases
 - If a field is completely unreadable or not present on the receipt, return null for that field.
 - If no discounts are visible, return 0 for discount fields.
 - If the receipt contains a service charge or tip, include it as a separate position.
-- If the receipt contains tax information, do not include tax as a separate position — the total_amount should be the final amount including tax.
+- If the receipt contains tax information, do not include tax as a separate position — the total_amount should be the final amount including tax. Still fill **total_vat** and **vat_components** when the receipt provides a VAT summary.
 - If quantity is not explicitly stated for an item, assume 1.
 - For weighted items (e.g., produce sold by kg), use the weight as the quantity.

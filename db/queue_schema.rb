@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_08_140903) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -248,6 +248,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_140903) do
     t.index ["transaction_id"], name: "index_transaction_positions_on_transaction_id"
   end
 
+  create_table "transaction_vat_components", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.decimal "rate_percent", precision: 7, scale: 4, null: false
+    t.bigint "transaction_id", null: false
+    t.datetime "updated_at", null: false
+    t.decimal "vat_amount", precision: 12, scale: 2, null: false
+    t.string "vat_group", null: false
+    t.index ["transaction_id", "vat_group"], name: "index_transaction_vat_components_on_txn_id_and_vat_group", unique: true
+    t.index ["transaction_id"], name: "index_transaction_vat_components_on_transaction_id"
+  end
+
   create_table "transactions", force: :cascade do |t|
     t.decimal "amount", precision: 12, scale: 2
     t.datetime "created_at", null: false
@@ -258,11 +269,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_140903) do
     t.string "store_address"
     t.string "store_name"
     t.decimal "total_discount", precision: 12, scale: 2, default: "0.0"
+    t.decimal "total_vat", precision: 12, scale: 2
     t.date "transaction_date"
     t.datetime "updated_at", null: false
     t.bigint "user_id", null: false
     t.index ["user_id", "transaction_date"], name: "index_transactions_on_user_id_and_transaction_date"
     t.index ["user_id"], name: "index_transactions_on_user_id"
+  end
+
+  create_table "user_settings", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "currency", default: "PLN", null: false
+    t.boolean "show_vat_details", default: false, null: false
+    t.datetime "updated_at", null: false
+    t.bigint "user_id", null: false
+    t.index ["user_id"], name: "index_user_settings_on_user_id", unique: true
   end
 
   create_table "users", force: :cascade do |t|
@@ -305,5 +326,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_08_140903) do
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "transaction_images", "transactions"
   add_foreign_key "transaction_positions", "transactions"
+  add_foreign_key "transaction_vat_components", "transactions"
   add_foreign_key "transactions", "users"
+  add_foreign_key "user_settings", "users"
 end

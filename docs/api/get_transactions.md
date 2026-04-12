@@ -67,6 +67,7 @@ GET /api/v1/users/123/transactions?currency=USD&start_date=05-04-2026&end_date=1
       "currency": "USD",
       "transaction_date": "2026-04-10",
       "store_name": "LIDL",
+      "total_vat": 23.70,
       "image_urls": [
         "https://example.com/receipts/image1.jpg"
       ],
@@ -89,6 +90,7 @@ GET /api/v1/users/123/transactions?currency=USD&start_date=05-04-2026&end_date=1
 | `transaction_date` | string           | Date of the transaction (JSON date serialization) |
 | `store_name`       | string / null    | Store name |
 | `image_urls`       | array of strings | Receipt image URLs |
+| `total_vat`        | float            | Total VAT |
 | `created_at`       | string           | Record creation time (ISO 8601) |
 | `updated_at`       | string           | Record last update (ISO 8601) |
 

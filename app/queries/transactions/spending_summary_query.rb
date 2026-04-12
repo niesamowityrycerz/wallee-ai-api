@@ -17,6 +17,10 @@ module Transactions
       base_scope.count
     end
 
+    def total_vat_sum
+      base_scope.pick(Arel.sql("COALESCE(SUM(total_vat), 0)")) || 0
+    end
+
     private
 
     attr_reader :user, :from_date, :to_date, :currency

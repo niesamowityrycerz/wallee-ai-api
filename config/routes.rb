@@ -13,6 +13,7 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: "json" } do
     namespace :v1 do
       resources :users, only: [], param: :id do
+        resource :user_setting, only: %i[show update], controller: "users/user_settings"
         resources :transactions, only: %i[index show create destroy update], controller: "users/transactions" do
           resources :positions, only: %i[update destroy], controller: "users/transactions/positions"
           collection do

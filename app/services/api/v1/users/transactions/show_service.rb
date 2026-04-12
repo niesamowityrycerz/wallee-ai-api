@@ -14,7 +14,7 @@ module Api
           end
 
           def call
-            @transaction = user.transactions.includes(:images, :positions).find_by(id: id)
+            @transaction = user.transactions.includes(:images, :positions, :vat_components).find_by(id: id)
             return { success: false, error: "Transaction not found" } unless transaction
 
             { success: true, data: serialize }
@@ -34,6 +34,8 @@ module Api
               store_address: transaction.store_address,
               image_urls: transaction.image_urls,
               total_discount: transaction.total_discount,
+              total_vat: transaction.total_vat&.to_f,
+              vat_components: transaction.vat_components&.map { |c| serialize_vat_component(c) } || [],
               products: transaction.positions.map { |p| serialize_position(p) },
               created_at: transaction.created_at,
               updated_at: transaction.updated_at
@@ -49,6 +51,14 @@ module Api
               total_price: position.total_price.to_f,
               category: position.category,
               total_discount: position.total_discount
+            }
+          end
+
+          def serialize_vat_component(component)
+            {
+              vat_group: component.vat_group,
+              rate_percent: component.rate_percent.to_f,
+              vat_amount: component.vat_amount.to_f
             }
           end
         end

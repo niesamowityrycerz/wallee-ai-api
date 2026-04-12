@@ -38,7 +38,7 @@ module Receipts
       end
 
       def user_prompt
-        "Analyze the receipt from the provided images and extract all data."
+        "Analyze the receipt from the provided images and extract all data, including any VAT summary (totals and per-group breakdown) when present."
       end
     end
   end

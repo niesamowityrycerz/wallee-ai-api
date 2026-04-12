@@ -14,6 +14,12 @@ class Transaction < ApplicationRecord
     dependent: :destroy,
     inverse_of: :transaction_record
 
+  has_many :vat_components,
+    class_name: "Transaction::VatComponent",
+    foreign_key: :transaction_id,
+    dependent: :destroy,
+    inverse_of: :transaction_record
+
   enum :status, {
     in_progress: 0,
     ready: 1,
@@ -21,6 +27,7 @@ class Transaction < ApplicationRecord
   }
 
   validates :amount, numericality: true, allow_nil: true
+  validates :total_vat, numericality: true, allow_nil: true
 
   def image_urls
     urls = images.map(&:image_url)

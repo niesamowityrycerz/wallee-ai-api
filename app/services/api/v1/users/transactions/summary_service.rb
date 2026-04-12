@@ -47,6 +47,7 @@ module Api
               to_date: range.end,
               currency: currency,
               transaction_count: query.count,
+              total_vat: query.total_vat_sum.to_f,
               totals: query.call.transform_values(&:to_f)
             }
           end

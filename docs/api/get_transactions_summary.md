@@ -53,13 +53,14 @@ GET /api/v1/users/123/transactions/summary?currency=PLN&from_date=01-04-2026&to_
   "to_date": "2026-04-11",
   "currency": "PLN",
   "transaction_count": 5,
+  "total_vat": 42.35,
   "totals": {
     "PLN": 342.50
   }
 }
 ```
 
-When there are no matching transactions, `transaction_count` is `0` and `totals` is `{}`.
+When there are no matching transactions, `transaction_count` is `0`, `total_vat` is `0`, and `totals` is `{}`.
 
 #### Field Reference
 
@@ -69,6 +70,7 @@ When there are no matching transactions, `transaction_count` is `0` and `totals`
 | `to_date`           | ISO 8601 date    | End of the queried range                                                    |
 | `currency`          | string           | The currency filter echoed back (same as the `currency` query parameter)   |
 | `transaction_count` | integer          | Number of `ready` transactions with a non-null amount in the range and currency |
+| `total_vat`         | float            | Sum of `total_vat` for those same transactions (missing per-transaction VAT counts as `0` in the sum) |
 | `totals`            | object           | Sum of `amount` keyed by ISO 4217 currency code (typically one key matching `currency`) |
 
 ### 422 Unprocessable Entity

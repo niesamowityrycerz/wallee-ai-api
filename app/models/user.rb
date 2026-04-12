@@ -9,4 +9,16 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :transactions, dependent: :destroy
+  has_one :user_setting, dependent: :destroy, inverse_of: :user
+
+  after_create :create_default_user_setting!
+
+  private
+
+  def create_default_user_setting!
+    create_user_setting!(
+      currency: UserSetting::DEFAULT_CURRENCY,
+      show_vat_details: false
+    )
+  end
 end

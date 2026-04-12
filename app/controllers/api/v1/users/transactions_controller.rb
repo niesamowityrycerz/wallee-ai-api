@@ -154,6 +154,7 @@ module Api
                 amount: t.amount.to_f,
                 currency: t.currency,
                 transaction_date: t.transaction_date,
+                total_vat: t.total_vat&.to_f,
                 store_name: t.store_name,
                 image_urls: t.image_urls,
                 created_at: t.created_at,
