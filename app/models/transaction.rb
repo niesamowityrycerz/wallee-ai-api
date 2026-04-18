@@ -20,6 +20,12 @@ class Transaction < ApplicationRecord
     dependent: :destroy,
     inverse_of: :transaction_record
 
+  has_many :transaction_tags,
+    dependent: :destroy,
+    inverse_of: :transaction_record
+
+  has_many :tags, through: :transaction_tags
+
   enum :status, {
     in_progress: 0,
     ready: 1,

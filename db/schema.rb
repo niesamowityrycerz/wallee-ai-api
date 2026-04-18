@@ -10,9 +10,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
+ActiveRecord::Schema[8.1].define(version: 2026_04_17_130000) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
+
+  create_table "accounts", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+  end
 
   create_table "active_storage_attachments", force: :cascade do |t|
     t.bigint "blob_id", null: false
@@ -214,6 +220,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
     t.index ["key"], name: "index_solid_queue_semaphores_on_key", unique: true
   end
 
+  create_table "tags", force: :cascade do |t|
+    t.bigint "account_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "created_by", default: 0, null: false
+    t.string "name", null: false
+    t.datetime "updated_at", null: false
+    t.index "account_id, lower((name)::text)", name: "index_tags_on_account_id_lower_name", unique: true
+    t.index ["account_id"], name: "index_tags_on_account_id"
+  end
+
   create_table "tool_calls", force: :cascade do |t|
     t.jsonb "arguments", default: {}
     t.datetime "created_at", null: false
@@ -246,6 +262,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
     t.decimal "unit_price", precision: 12, scale: 2, null: false
     t.datetime "updated_at", null: false
     t.index ["transaction_id"], name: "index_transaction_positions_on_transaction_id"
+  end
+
+  create_table "transaction_tags", force: :cascade do |t|
+    t.datetime "created_at", null: false
+    t.integer "source", default: 0, null: false
+    t.bigint "tag_id", null: false
+    t.bigint "transaction_id", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tag_id"], name: "index_transaction_tags_on_tag_id"
+    t.index ["transaction_id", "tag_id"], name: "index_transaction_tags_on_transaction_id_and_tag_id", unique: true
+    t.index ["transaction_id"], name: "index_transaction_tags_on_transaction_id"
   end
 
   create_table "transaction_vat_components", force: :cascade do |t|
@@ -287,6 +314,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
   end
 
   create_table "users", force: :cascade do |t|
+    t.bigint "account_id"
     t.boolean "allow_password_change", default: false
     t.datetime "confirmation_sent_at"
     t.string "confirmation_token"
@@ -305,6 +333,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
     t.string "uid", default: "", null: false
     t.string "unconfirmed_email"
     t.datetime "updated_at", null: false
+    t.index ["account_id"], name: "index_users_on_account_id"
     t.index ["confirmation_token"], name: "index_users_on_confirmation_token", unique: true
     t.index ["email"], name: "index_users_on_email", unique: true
     t.index ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true
@@ -323,10 +352,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_04_12_140000) do
   add_foreign_key "solid_queue_ready_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_recurring_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
   add_foreign_key "solid_queue_scheduled_executions", "solid_queue_jobs", column: "job_id", on_delete: :cascade
+  add_foreign_key "tags", "accounts"
   add_foreign_key "tool_calls", "messages"
   add_foreign_key "transaction_images", "transactions"
   add_foreign_key "transaction_positions", "transactions"
+  add_foreign_key "transaction_tags", "tags"
+  add_foreign_key "transaction_tags", "transactions"
   add_foreign_key "transaction_vat_components", "transactions"
   add_foreign_key "transactions", "users"
   add_foreign_key "user_settings", "users"
+  add_foreign_key "users", "accounts"
 end

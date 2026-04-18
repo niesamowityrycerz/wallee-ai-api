@@ -1,6 +1,8 @@
 # GET Transaction
 
-Retrieves the details of a single transaction belonging to the authenticated user, including all associated products, image URLs, and—when extracted from the receipt—**VAT** (`total_vat` and per–tax-group `vat_components`).
+Retrieves the details of a single transaction belonging to the authenticated user, including all associated products, image URLs, **tags** attached to the transaction (with assignment metadata), and—when extracted from the receipt—**VAT** (`total_vat` and per–tax-group `vat_components`).
+
+> **List transactions** (`GET .../transactions`) does **not** include `tags`; load this endpoint when you need tag data for a single transaction. To change which tags are linked to a transaction, use **[Update transaction tags](update_transaction_tags.md)**. To **create a tag by name** and link it in one step (**201**, empty body), use **[POST Create transaction tag (name)](create_transaction_tag.md)**.
 
 ## Endpoint
 
@@ -79,6 +81,16 @@ Uses **DeviseTokenAuth** token-based authentication. All four headers are requir
       "total_discount": 0.00
     }
   ],
+  "tags": [
+    {
+      "id": 1,
+      "name": "Groceries",
+      "created_by": "account_member",
+      "created_at": "2026-04-17T10:00:00.000Z",
+      "updated_at": "2026-04-17T10:00:00.000Z",
+      "source": "llm"
+    }
+  ],
   "created_at": "2026-03-29T09:55:00.000Z",
   "updated_at": "2026-03-29T10:01:00.000Z"
 }
@@ -101,6 +113,7 @@ Uses **DeviseTokenAuth** token-based authentication. All four headers are requir
 | `total_vat`        | float / null     | Total VAT for the transaction (e.g. **SUMA PTU** on Polish fiscal receipts). `null` if not extracted or not present on the receipt. |
 | `vat_components`   | array of objects | Per–VAT-group breakdown when available (see **VAT component** below). Always a JSON array—never `null`. Use an **empty array** `[]` when there is no data or the association is absent. |
 | `products`         | array of objects | Line items parsed from the receipt (see below)                    |
+| `tags`             | array of objects | Tags linked to this transaction (see **Tag object** below). Sorted alphabetically by `name` (case-insensitive). Empty array when none. |
 | `created_at`       | ISO 8601 string  | Record creation timestamp                                         |
 | `updated_at`       | ISO 8601 string  | Record last-updated timestamp                                     |
 
@@ -115,6 +128,19 @@ Uses **DeviseTokenAuth** token-based authentication. All four headers are requir
 | `total_price`      | float        | Line total after discount: `quantity × unit_price − total_discount`          |
 | `total_discount`   | float / null | Discount applied to this line item                                          |
 | `category`         | string       | One of: `groceries`, `beverages`, `dairy`, `bakery`, `meat_and_seafood`, `fruits_and_vegetables`, `snacks_and_sweets`, `frozen_foods`, `household_and_cleaning`, `personal_care`, `health_and_pharmacy`, `electronics`, `clothing_and_apparel`, `alcohol_and_tobacco`, `pet_supplies`, `office_supplies`, `home_and_garden`, `toys_and_games`, `books_and_magazines`, `restaurant_and_dining`, `transportation`, `entertainment`, `other` |
+
+#### Tag object (elements of `tags`)
+
+Each element uses the same core fields as **[GET Tags](get_tags.md)** (`id`, `name`, `created_by`, `created_at`, `updated_at`) plus **`source`**, which describes **how this tag is attached to this transaction** (not how the tag was originally created):
+
+| Field        | Type     | Description |
+|--------------|----------|-------------|
+| `id`         | integer  | Tag ID |
+| `name`       | string   | Tag display name |
+| `created_by` | string   | `account_member` or `llm` — origin of the **tag record** (defaults/API vs first created by automated tagging) |
+| `created_at` | string | ISO 8601 — tag record creation time |
+| `updated_at` | string | ISO 8601 — tag record last update |
+| `source`     | string   | `user` or `llm` — whether this **link** was applied by the user (app/API) or by the automated receipt tagger |
 
 #### VAT component object
 

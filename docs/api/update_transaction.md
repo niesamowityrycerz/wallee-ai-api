@@ -1,6 +1,8 @@
 # PATCH Update Transaction
 
-Updates an existing transaction for the authenticated user. Only transactions with status `ready` can be edited. Send only the fields you want to change — all fields are optional.
+Updates an existing transaction for the authenticated user. Only transactions with status `ready` can be edited. Send only the fields you want to change — **at least one** transaction field below must be present.
+
+To add or remove **tags**, use **[Update transaction tags](update_transaction_tags.md)** instead. The JSON response for this endpoint **does not** include `tags`; use **[GET Transaction](get_transaction.md)** when you need tag data.
 
 ## Endpoint
 
@@ -30,7 +32,9 @@ Uses **DeviseTokenAuth** token-based authentication. All four headers are requir
 
 ## Request Body (JSON)
 
-All fields are optional, but at least one must be provided.
+See the introduction for the **“at least one change”** rule.
+
+### Transaction fields
 
 | Field              | Type          | Description                                        |
 |--------------------|---------------|----------------------------------------------------|

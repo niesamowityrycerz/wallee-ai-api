@@ -2,6 +2,8 @@
 
 Returns the authenticated user’s transactions filtered by **currency** and **transaction date range**. Results are sorted from **newest to oldest** (by `transaction_date`, then `created_at`). Pagination is not implemented yet.
 
+> Each transaction in this list **does not** include **`tags`**. To load tags for one transaction, call **[GET Transaction](get_transaction.md)**. To load a tag’s **`id`/`name`** plus its transactions (optional currency/date filters; same row shape), use **[GET Tag transactions](get_transactions_by_tag.md)**.
+
 ## Endpoint
 
 ```

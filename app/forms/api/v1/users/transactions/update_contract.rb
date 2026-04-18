@@ -18,7 +18,11 @@ module Api
           end
 
           rule do
-            base.failure("at least one field must be provided") if values.to_h.empty?
+            h = values.to_h
+            has_txn_field = %i[name amount currency transaction_date store_name store_address total_discount].any? do |key|
+              h.key?(key)
+            end
+            base.failure("at least one field must be provided") unless has_txn_field
           end
 
           rule(:currency) do

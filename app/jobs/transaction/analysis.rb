@@ -12,6 +12,8 @@ class Transaction::Analysis < ApplicationJob
 
     if result[:success]
       transaction.update!(status: :ready)
+      transaction.reload
+      Receipts::Tagger::Entrypoint.new(transaction: transaction).call
     else
       transaction.update!(status: :failed)
     end

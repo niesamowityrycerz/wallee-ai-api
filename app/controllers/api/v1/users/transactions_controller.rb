@@ -119,8 +119,9 @@ module Api
         end
 
         def update_params
-          params.permit(:name, :amount, :currency, :transaction_date, :store_name, :store_address, :total_discount)
-                .to_h.deep_symbolize_keys
+          params.permit(
+            :name, :amount, :currency, :transaction_date, :store_name, :store_address, :total_discount
+          ).to_h.deep_symbolize_keys
         end
 
         def create_by_hand_params
@@ -145,23 +146,7 @@ module Api
         end
 
         def serialize_index(result)
-          {
-            transactions: result[:transactions].map do |t|
-              {
-                id: t.id,
-                status: t.status,
-                name: t.name,
-                amount: t.amount.to_f,
-                currency: t.currency,
-                transaction_date: t.transaction_date,
-                total_vat: t.total_vat&.to_f,
-                store_name: t.store_name,
-                image_urls: t.image_urls,
-                created_at: t.created_at,
-                updated_at: t.updated_at
-              }
-            end
-          }
+          ::Api::V1::Users::Transactions::IndexPayload.call(result[:transactions])
         end
       end
     end

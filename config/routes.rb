@@ -14,7 +14,13 @@ Rails.application.routes.draw do
     namespace :v1 do
       resources :users, only: [], param: :id do
         resource :user_setting, only: %i[show update], controller: "users/user_settings"
+        resources :tags, only: %i[index create update destroy], controller: "users/tags" do
+          member do
+            get :transactions
+          end
+        end
         resources :transactions, only: %i[index show create destroy update], controller: "users/transactions" do
+          resource :tags, only: %i[create update], controller: "users/transactions/tags"
           resources :positions, only: %i[update destroy], controller: "users/transactions/positions"
           collection do
             get :check_statuses

@@ -14,7 +14,9 @@ module Api
           end
 
           def call
-            @transaction = user.transactions.includes(:images, :positions, :vat_components).find_by(id: id)
+            @transaction = user.transactions
+              .includes(:images, :positions, :vat_components, transaction_tags: :tag)
+              .find_by(id: id)
             return { success: false, error: "Transaction not found" } unless transaction
 
             { success: true, data: serialize }
@@ -37,9 +39,14 @@ module Api
               total_vat: transaction.total_vat&.to_f,
               vat_components: transaction.vat_components&.map { |c| serialize_vat_component(c) } || [],
               products: transaction.positions.map { |p| serialize_position(p) },
+              tags: serialize_tags,
               created_at: transaction.created_at,
               updated_at: transaction.updated_at
             }
+          end
+
+          def serialize_tags
+            TagAssignmentList.call(transaction)
           end
 
           def serialize_position(position)
