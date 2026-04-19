@@ -13,6 +13,64 @@ class Api::V1::Users::TagsTest < ActionDispatch::IntegrationTest
     body = JSON.parse(response.body)
     assert_equal 15, body["tags"].size
     assert body["tags"].first.key?("created_by")
+    assert body["tags"].none? { |t| t.key?("tagged_transactions_count") }
+  end
+
+  test "include_tagged_transactions_count adds usage field to each tag" do
+    user = create_user("tags-index-counts")
+    headers = user.create_new_auth_token
+
+    get api_v1_user_tags_path(user, include_tagged_transactions_count: true),
+      headers: headers,
+      as: :json
+
+    assert_response :success
+    body = JSON.parse(response.body)
+    assert_equal 15, body["tags"].size
+    assert body["tags"].all? { |t| t.key?("tagged_transactions_count") }
+    assert body["tags"].all? { |t| t["tagged_transactions_count"].is_a?(Integer) }
+  end
+
+  test "tagged_transactions_count sums across all users on the account" do
+    user1 = create_user("tags-count-a")
+    account = user1.reload.account
+    user2 = User.create!(
+      email: "tags-count-b-#{SecureRandom.hex(4)}@example.com",
+      password: "password",
+      password_confirmation: "password",
+      account: account
+    )
+    tag = account.tags.find_by!(name: "Groceries")
+    day = Date.current
+    tx1 = user1.transactions.create!(
+      name: "U1", amount: 1.0, currency: "USD", transaction_date: day, status: :ready
+    )
+    tx1.transaction_tags.create!(tag: tag, source: :user)
+    tx2 = user2.transactions.create!(
+      name: "U2", amount: 2.0, currency: "USD", transaction_date: day, status: :ready
+    )
+    tx2.transaction_tags.create!(tag: tag, source: :llm)
+    headers = user1.create_new_auth_token
+
+    get api_v1_user_tags_path(user1, include_tagged_transactions_count: true),
+      headers: headers,
+      as: :json
+
+    assert_response :success
+    groceries = JSON.parse(response.body)["tags"].find { |t| t["name"] == "Groceries" }
+    assert_equal 2, groceries["tagged_transactions_count"]
+  end
+
+  test "include_tagged_transactions_count false omits usage field" do
+    user = create_user("tags-no-count")
+    headers = user.create_new_auth_token
+
+    get api_v1_user_tags_path(user, include_tagged_transactions_count: false),
+      headers: headers,
+      as: :json
+
+    assert_response :success
+    assert JSON.parse(response.body)["tags"].none? { |t| t.key?("tagged_transactions_count") }
   end
 
   test "filters tags by created_by" do

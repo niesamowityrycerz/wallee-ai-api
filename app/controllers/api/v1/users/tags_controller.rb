@@ -90,7 +90,7 @@ module Api
         end
 
         def index_params
-          params.permit(:created_by).to_h.deep_symbolize_keys
+          params.permit(:created_by, :include_tagged_transactions_count).to_h.deep_symbolize_keys
         end
 
         def create_params
