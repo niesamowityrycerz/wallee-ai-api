@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 return if Rails.env.development?
+return if Rails.env.test?
 
 Sentry.init do |config|
   config.dsn = Rails.application.credentials.sentry.fetch(:dsn)

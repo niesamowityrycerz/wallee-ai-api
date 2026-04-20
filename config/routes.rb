@@ -13,6 +13,15 @@ Rails.application.routes.draw do
   namespace :api, defaults: { format: "json" } do
     namespace :v1 do
       resources :users, only: [], param: :id do
+        resource :analytics, only: [], controller: "users/analytics" do
+          get :spending
+          get :gross_spending
+          get :spending_by_tag
+          get :spending_by_category
+          get :top_categories
+          resources :category_pie_configs, only: %i[index create update destroy],
+                    controller: "users/analytics/category_pie_configs"
+        end
         resource :user_setting, only: %i[show update], controller: "users/user_settings"
         resources :tags, only: %i[index create update destroy], controller: "users/tags" do
           member do

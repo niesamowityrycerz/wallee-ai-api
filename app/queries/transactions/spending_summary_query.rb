@@ -26,9 +26,12 @@ module Transactions
     attr_reader :user, :from_date, :to_date, :currency
 
     def base_scope
-      Transaction
-        .where(user: user, status: :ready, currency: currency, transaction_date: from_date..to_date)
-        .where.not(amount: nil)
+      SpendingTransactionsRelation.call(
+        user: user,
+        from_date: from_date,
+        to_date: to_date,
+        currency: currency
+      )
     end
   end
 end

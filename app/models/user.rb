@@ -11,6 +11,7 @@ class User < ActiveRecord::Base
   belongs_to :account, optional: true, inverse_of: :users
 
   has_many :transactions, dependent: :destroy
+  has_many :category_pie_configs, dependent: :destroy, inverse_of: :user
   has_one :user_setting, dependent: :destroy, inverse_of: :user
 
   after_create :create_default_user_setting!
